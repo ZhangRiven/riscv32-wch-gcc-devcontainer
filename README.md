@@ -6,13 +6,13 @@
 ![Screenshot](scr.PNG)
 
 ### Packages
-* [MounRiver Studio II (MRS2)](http://www.mounriver.com/download) Version 2.4.0
+* [MounRiver Studio II (MRS2)](https://www.mounriver.com/download) Version 2.5.0
   * WCH-custom GNU toolchain for RISC-V Version 15.2.0
   * WCH-custom OpenOCD Version 0.11.0
   * ISP Firmware Version `v41`
   * SVD files
 * [CH32X035 PIOC Assembler](https://github.com/openwch/ch32x035/tree/main/EVT/EXAM/PIOC/Tool_Manual/Tool) Version 3.1
-* [CMake](https://cmake.org/download) Version 4.3.2
+* [CMake](https://cmake.org/download) Version 4.4.2
 * [ch32-rs/wchisp](https://github.com/ch32-rs/wchisp/) Version 0.3.0
 * [ch32-rs/wlink](https://github.com/ch32-rs/wlink/) Version 0.1.2
 

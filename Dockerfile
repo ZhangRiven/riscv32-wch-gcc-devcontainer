@@ -27,7 +27,7 @@ RUN apt-get update && \
 WORKDIR /tmp
 
 #- CMake -----------------------------------------------------------------------
-ARG CMAKE_VERSION=4.3.2
+ARG CMAKE_VERSION=4.4.2
 ARG CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.tar.gz"
 ARG CMAKE_HASH="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-SHA-256.txt"
 
@@ -46,9 +46,9 @@ RUN ln -s ${DOTNET_INSTALL_DIR}/dotnet-info.sh ${DOTNET_INSTALL_DIR}/dotnet
 ENV PATH=$PATH:${DOTNET_INSTALL_DIR}
 
 #- Mounriver Toolchain & Debugger ----------------------------------------------
-ARG MOUNRIVER_VERSION=240
+ARG MOUNRIVER_VERSION=250
 ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
-ARG MOUNRIVER_MD5="9ed98839da0e82eac2af50df93081c60"
+ARG MOUNRIVER_MD5="b2dcd07209b17d214723181fdfa8098b"
 ARG MOUNRIVER_OPENOCD_INSTALL_DIR="/opt/openocd"
 ARG MOUNRIVER_TOOLCHAIN_INSTALL_DIR="/opt/gcc-riscv-none-elf"
 ARG MOUNRIVER_RULES_INSTALL_DIR="/opt/wch/rules"
@@ -62,7 +62,7 @@ RUN mkdir -p ${MOUNRIVER_RULES_INSTALL_DIR} && \
     mkdir -p ${MOUNRIVER_SVD_INSTALL_DIR} && \
     echo "${MOUNRIVER_MD5} $(basename ${MOUNRIVER_URL})" | md5sum -c - && \
     MOUNRIVER_TMP=$(mktemp -d) && \
-    tar -xf $(basename "${MOUNRIVER_URL}") -C $MOUNRIVER_TMP && \
+    tar -xf $(basename "${MOUNRIVER_URL}") -C $MOUNRIVER_TMP --strip-components 1 && \
     rm $(basename "${MOUNRIVER_URL}") && \
     mv $MOUNRIVER_TMP/beforeinstall/lib* /usr/lib/ && ldconfig && \
     mv $MOUNRIVER_TMP/beforeinstall/*.rules ${MOUNRIVER_RULES_INSTALL_DIR} && \
