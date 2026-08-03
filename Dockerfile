@@ -29,11 +29,11 @@ WORKDIR /tmp
 #- CMake -----------------------------------------------------------------------
 ARG CMAKE_VERSION=4.4.2
 ARG CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-x86_64.tar.gz"
-ARG CMAKE_HASH="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-SHA-256.txt"
+ARG CMAKE_HASH="3ada9a3f5d8a85413579bdd0ea6aa8e8da86efdd6d15c91a1afa517f2021956c"
 
 # Download and install package
 RUN curl -sLO ${CMAKE_URL} && \
-    curl -sL ${CMAKE_HASH} | grep $(basename "${CMAKE_URL}") | sha256sum -c - && \
+    echo "${CMAKE_HASH} $(basename ${CMAKE_URL})" | sha256sum -c - && \
     tar -xf $(basename "${CMAKE_URL}") -C /usr --strip-components=1 && \
     rm $(basename "${CMAKE_URL}")
 
@@ -94,11 +94,13 @@ RUN for i in $(ls ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin/riscv-none-elf-*); do k
 #- ISP flashing tool -----------------------------------------------------------
 ARG ISPTOOL_VERSION=0.3.0
 ARG ISPTOOL_URL="https://github.com/ch32-rs/wchisp/releases/download/v${ISPTOOL_VERSION}/wchisp-v${ISPTOOL_VERSION}-linux-x64.tar.gz"
+ARG ISPTOOL_HASH="67e3d4eb0ffd3cc610d8927e3c3f452e2110531a3f14405dcaef87df219f200d"
 ARG ISPTOOL_INSTALL_DIR="/opt/wchisp"
 
 # Download and install package; Copy firmware files
 RUN curl -sLO ${ISPTOOL_URL} && \
     mkdir -p ${ISPTOOL_INSTALL_DIR} && \
+    echo "${ISPTOOL_HASH} $(basename ${ISPTOOL_URL})" | sha256sum -c - && \
     tar -xf $(basename ${ISPTOOL_URL}) -C ${ISPTOOL_INSTALL_DIR} --strip-components=1 && \
     rm -rf $(basename ${ISPTOOL_URL})
 ENV PATH=$PATH:${ISPTOOL_INSTALL_DIR}
@@ -119,11 +121,13 @@ ENV PATH=$PATH:${WASM53B_INSTALL_DIR}
 #- Target flasing tool ---------------------------------------------------------
 ARG FLASHTOOL_VERSION=0.1.2
 ARG FLASHTOOL_URL="https://github.com/ch32-rs/wlink/releases/download/v${FLASHTOOL_VERSION}/wlink-v${FLASHTOOL_VERSION}-linux-x64.tar.gz"
+ARG FLASHTOOL_HASH="f8f1fba2436694116fe2cf16b1572e92d116c4acd921bf12fbc0ca5bf63824bf"
 ARG FLASHTOOL_INSTALL_DIR="/opt/wlink"
 
 # Download and install package
 RUN curl -sLO ${FLASHTOOL_URL} && \
     mkdir -p ${FLASHTOOL_INSTALL_DIR} && \
+    echo "${FLASHTOOL_HASH} $(basename ${FLASHTOOL_URL})" | sha256sum -c - && \
     tar -xf $(basename ${FLASHTOOL_URL}) -C ${FLASHTOOL_INSTALL_DIR} --strip-components=1 && \
     rm -rf $(basename ${FLASHTOOL_URL})
 ENV PATH=$PATH:${FLASHTOOL_INSTALL_DIR}
