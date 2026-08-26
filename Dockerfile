@@ -12,7 +12,8 @@ USER root
 # Dependencies setup
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    cu \
+    vim \
+    picocom \
     curl \
     make \
     python3-pygments \
@@ -21,10 +22,20 @@ RUN apt-get update && \
     udev \
     unzip \
     usbutils \
-    && rm -rf /var/lib/apt/lists/*
+    clangd
 
 # Setup dir for packages installation
 WORKDIR /tmp
+
+# yazi
+RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null
+RUN echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' | sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    yazi \
+    && rm -rf /var/lib/apt/lists/*
+
 
 #- CMake -----------------------------------------------------------------------
 ARG CMAKE_VERSION=4.4.2
@@ -46,8 +57,9 @@ RUN ln -s ${DOTNET_INSTALL_DIR}/dotnet-info.sh ${DOTNET_INSTALL_DIR}/dotnet
 ENV PATH=$PATH:${DOTNET_INSTALL_DIR}
 
 #- Mounriver Toolchain & Debugger ----------------------------------------------
-ARG MOUNRIVER_VERSION=250
-ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
+ARG MOUNRIVER_VERSION=2.5.0
+ARG MOUNRIVER_URL="http://file-oss.mounriver.com/upgrade/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
+# ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
 ARG MOUNRIVER_MD5="b2dcd07209b17d214723181fdfa8098b"
 ARG MOUNRIVER_OPENOCD_INSTALL_DIR="/opt/openocd"
 ARG MOUNRIVER_TOOLCHAIN_INSTALL_DIR="/opt/gcc-riscv-none-elf"
@@ -56,7 +68,8 @@ ARG MOUNRIVER_FIRMWARE_INSTALL_DIR="/opt/wch/firmware"
 ARG MOUNRIVER_SVD_INSTALL_DIR="/opt/wch/svd"
 
 # Download and install package
-COPY MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz /tmp
+RUN curl -sLO ${MOUNRIVER_URL}
+# COPY MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz /tmp
 RUN mkdir -p ${MOUNRIVER_RULES_INSTALL_DIR} && \
     mkdir -p ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR} && \
     mkdir -p ${MOUNRIVER_SVD_INSTALL_DIR} && \
@@ -143,7 +156,7 @@ ENV PATH=$PATH:${UTILS_INSTALL_DIR}/bin
 
 #- User setup ------------------------------------------------------------------
 # Add plugdev group for non-root debugger access
-RUN usermod -aG plugdev vscode
+RUN usermod -aG plugdev,dialout vscode
 
 USER vscode
 

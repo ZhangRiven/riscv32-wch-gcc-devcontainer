@@ -1,22 +1,18 @@
 {
   "name": "WCH-IC RISC-V GNU Toolchain",
-  
   // Build image locally from provided Dockerfile
   /*"build": {
     "dockerfile": "Dockerfile"
   },*/
-
   // Pull and use pre-built image from Docker Hub
-  "image": "islandc/wch-riscv-devcontainer",
-  
+  "image": "riven/riscv32-wch-gcc-devcontainer:latest",
   // Privileged container in order to access /dev
   "privileged": true,
-  
   // Mount USB devices (debug probes, UART interfaces, ...)
   "mounts": [
     "source=/dev/bus/usb/,target=/dev/bus/usb/,type=bind"
   ],
-  
+  "remoteUser": "root",
   // Pre-configure settings and extensions
   "customizations": {
     "vscode": {
@@ -29,7 +25,6 @@
           "editor.tabSize": 8,
           "editor.insertSpaces": false
         },
-
         "files.associations": {
           "*.c": "c",
           "*.h": "c",
@@ -39,22 +34,42 @@
           "*.asm": "riscv",
           "*.ld": "linkerscript"
         },
-        
         "editor.insertSpaces": true,
-        "editor.rulers": [80],
+        "editor.rulers": [
+          80
+        ],
         "editor.tabSize": 2,
-
         "C_Cpp.default.compilerPath": "/opt/gcc-riscv-none-elf/bin/riscv-none-elf-gcc",
         "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
         "C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
-        
         "cmake.configureOnOpen": true,
         "cmake.options.statusBarVisibility": "visible",
-        "cmake.additionalKits": [ "/opt/devcontainer/cmake-tools-kits.json" ]
+        "cmake.additionalKits": [
+          "/opt/devcontainer/cmake-tools-kits.json"
+        ],
+        "clangd.arguments": [
+          "--background-index",
+          "--background-index-priority=low",
+          "--completion-style=detailed",
+          "--fallback-style=Google",
+          "--function-arg-placeholders=false",
+          "--header-insertion=never",
+          "--header-insertion-decorators",
+          "--import-insertions",
+          "--rename-file-limit=0",
+          "--enable-config",
+          "-j=24",
+          "--pch-storage=memory",
+          "--pretty",
+          "--compile-commands-dir=${workspaceFolder}/build",
+          "--query-driver=/opt/gcc-riscv-none-elf/wch/bin/riscv32-wch-elf-*",
+          "--log=info"
+        ]
       },
       "extensions": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        // "ms-vscode.cpptools-extension-pack",
         "keroc.hex-fmt",
-        "ms-vscode.cpptools-extension-pack",
         "ms-vscode.cmake-tools",
         "ms-vscode.vscode-embedded-tools",
         "trond-snekvik.gnu-mapfiles",

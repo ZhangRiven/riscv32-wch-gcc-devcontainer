@@ -62,11 +62,11 @@ Configuration files for the OpenOCD debugger are included in `/opt/openocd/bin/`
 Peripheral description files (SVD) for RISC-V MCUs are provided in `/opt/wch/`.
 
 ### Serial Monitor
-To access the WCH-Link serial monitor inside the devcontainer, use the `cu` command as shown below:
+To access the WCH-Link serial monitor inside the devcontainer, use the `picocom` command as shown below:
 
-    cu -l <serial port device> -s <baudrate>
+    picocom -b <baudrate> <tty port device>
 
-e.g. "`cu -l /dev/ttyACM0 -s 115200`".
+e.g. "`picocom -b 500000 /dev/ttyUSB0`".
 
 To close the connection, press RETURN/ESC/Ctrl-C, type "`~.`" (tilde, dot) and wait for 3 seconds.
 
@@ -89,6 +89,12 @@ In order to run the assembler, a 32-bit WINE installation inside the container i
       xxd -i <binary file name> <C source file name>
 
 ## Building
+```sh
+podman build \
+  -t riven/riscv32-wch-gcc-devcontainer:latest \
+  -f .devcontainer/Dockerfile \
+  .devcontainer
+```
 
 To build the image yourself, either download the [Linux MounRiver Studio II (MRS2)](http://www.mounriver.com/download) package manually and place it in the build directory, or enable the download in the [dockerfile](Dockerfile#L59-L68):
 
