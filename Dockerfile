@@ -58,7 +58,7 @@ ENV PATH=$PATH:${DOTNET_INSTALL_DIR}
 
 #- Mounriver Toolchain & Debugger ----------------------------------------------
 ARG MOUNRIVER_VERSION=2.5.0
-ARG MOUNRIVER_URL="http://file-oss.mounriver.com/upgrade/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
+ARG MOUNRIVER_URL="https://github.com/ZhangRiven/MRS_Linux/releases/download/v2.5.0/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
 # ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
 ARG MOUNRIVER_MD5="b2dcd07209b17d214723181fdfa8098b"
 ARG MOUNRIVER_OPENOCD_INSTALL_DIR="/opt/openocd"

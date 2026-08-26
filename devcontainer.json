@@ -62,7 +62,7 @@
           "--pch-storage=memory",
           "--pretty",
           "--compile-commands-dir=${workspaceFolder}/build",
-          "--query-driver=/opt/gcc-riscv-none-elf/wch/bin/riscv32-wch-elf-*",
+          "--query-driver=/opt/gcc-riscv-none-elf/bin/riscv-none-elf-*",
           "--log=info"
         ]
       },
