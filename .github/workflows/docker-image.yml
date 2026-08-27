@@ -38,7 +38,7 @@ jobs:
             type=ref,event=pr
             type=sha,prefix=sha-
 
-      - name: Build Docker image
+      - name: Build and export Docker image
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -48,3 +48,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/image.tar   # 导出到临时文件
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/image.tar
+          retention-days: 7   # 可选，保留天数

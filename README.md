@@ -45,6 +45,44 @@ In order to use USB debug probes within the container, some udev rules need to b
       cd .vscode/setup
       sudo ./install-rules
 
+
+### Troubleshooting USB permission errors
+If `wlink flash` fails with `failed to open device (errno 13)`, the WCH-Link is usually visible but the current host user does not have permission to open it. On distributions that do not provide the `plugdev` group by default, create the group and add the current user to it:
+
+```sh
+sudo groupadd --system plugdev 2>/dev/null || true
+sudo usermod -aG plugdev "$USER"
+```
+
+Reload the rules, then unplug and reconnect the WCH-Link:
+
+```sh
+cd .vscode/setup
+sudo ./install-rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Log out and back in so the new group membership takes effect. For a temporary shell-only change, use `newgrp plugdev` instead.
+
+Rebuild and reopen the Dev Container so the USB device mount and permissions are refreshed:
+
+```text
+Dev Containers: Rebuild and Reopen in Container
+```
+
+Verify the setup inside the container:
+
+```sh
+id
+lsusb | grep -i wch
+ls -l /dev/bus/usb/*/*
+wlink flash build/CH585D.elf
+```
+
+The container already enables privileged access and mounts `/dev/bus/usb/` in `devcontainer.json`; no additional Docker arguments are normally required.
+
+
 ### WCH-Link Firmware Update
 **Firmware update files** are provided in `/opt/wch/firmware/` and can be programmed using the `wchisp` utility. See the [`wchisp` GitHub repository](https://github.com/ch32-rs/wchisp/) for more information.
 
