@@ -13,7 +13,7 @@ USER root
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     vim \
-    picocom \
+    minicom \
     curl \
     make \
     python3-pygments \
@@ -22,7 +22,8 @@ RUN apt-get update && \
     udev \
     unzip \
     usbutils \
-    clangd
+    clangd \
+    gdb-multiarch
 
 # Setup dir for packages installation
 WORKDIR /tmp

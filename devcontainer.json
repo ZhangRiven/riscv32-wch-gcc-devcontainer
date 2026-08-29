@@ -17,14 +17,6 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "[cmake]": {
-          "editor.tabSize": 8,
-          "editor.insertSpaces": false
-        },
-        "[makefile]": {
-          "editor.tabSize": 8,
-          "editor.insertSpaces": false
-        },
         "files.associations": {
           "*.c": "c",
           "*.h": "c",
@@ -38,10 +30,6 @@
         "editor.rulers": [
           80
         ],
-        "editor.tabSize": 2,
-        "C_Cpp.default.compilerPath": "/opt/gcc-riscv-none-elf/bin/riscv-none-elf-gcc",
-        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-        "C_Cpp.default.intelliSenseMode": "linux-gcc-x86",
         "cmake.configureOnOpen": true,
         "cmake.options.statusBarVisibility": "visible",
         "cmake.additionalKits": [
@@ -64,17 +52,24 @@
           "--compile-commands-dir=${workspaceFolder}/build",
           "--query-driver=/opt/gcc-riscv-none-elf/bin/riscv-none-elf-*",
           "--log=info"
+        ],
+        "VsCodeTaskButtons.tasks": [
+          {
+            "label": "$(play) Flash Target",
+            "task": "Flash Target",
+            "tooltip": "Flash the ordered MCU"
+          }
         ]
       },
       "extensions": [
         "llvm-vs-code-extensions.vscode-clangd",
-        // "ms-vscode.cpptools-extension-pack",
-        "keroc.hex-fmt",
+        "marus25.cortex-debug",
         "ms-vscode.cmake-tools",
-        "ms-vscode.vscode-embedded-tools",
+        "keroc.hex-fmt",
         "trond-snekvik.gnu-mapfiles",
         "zhwu95.riscv",
-        "ZixuanWang.linkerscript"
+        "ZixuanWang.linkerscript",
+        "spencerwmiles.vscode-task-buttons"
       ]
     }
   }

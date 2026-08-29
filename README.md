@@ -32,6 +32,70 @@ For CMake projects:
   * The CMake Kit definition for VS Code is located at [`/opt/devcontainer/cmake-tools-kits.json`](cmake-tools-kits.json)
 * Run `CMake: Configure`
 * Build using `CMake: Build [F7]`
+* Flash using `wlink flash build/xxx.elf`
+  * task.json
+    ```json
+    {
+      // See https://go.microsoft.com/fwlink/?LinkId=733558
+      // for the documentation about the tasks.json format
+      "version": "2.0.0",
+      "tasks": [
+        {
+          "label": "Flash Target",
+          "type": "shell",
+          "command": "wlink",
+          "args": [
+            "flash",
+            "build/CH585D.elf"
+          ],
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
+          "presentation": {
+            "echo": true,
+            "reveal": "always"
+          }
+        }
+      ]
+    }
+    ```
+* Debug
+  * launch.json
+    ```json
+    {
+      // 使用 IntelliSense 了解相关属性。 
+      // 悬停以查看现有属性的描述。
+      // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "name": "Debug (gdb-multiarch)",
+          "type": "cortex-debug",
+          "request": "launch",
+          // 指定 RISC-V 调试器路径（务必确认与你系统安装的一致）
+          "gdbPath": "/usr/bin/gdb-multiarch",
+          // 自动获取 CMake 生成的固件路径
+          "executable": "${command:cmake.launchTargetPath}",
+          "servertype": "openocd",
+          // 指定 OpenOCD 的配置文件（WCH-Link）
+          "configFiles": [
+            "/opt/openocd/bin/wch-riscv.cfg"
+          ],
+          // xxx.svd
+          "svdFile": "/opt/wch/svd/CH585.svd",
+          // 设备名称（用于寄存器视图美化）
+          "device": "CH585",
+          // 可选：连接成功后自动运行到 main 函数
+          "runToEntryPoint": "main",
+          // 可选：让调试器在启动时自动重置并暂停
+          "postResetCommands": [
+            "monitor halt"
+          ]
+        }
+      ]
+    }
+    ```
 
 ### CMake+IntelliSense Notes
 Upon first run, an error message may appear in Line 1, Column 1. Try re-running CMake configuration, or run a build. If the file is a `.h` header file, it needs to be `#include`'d into a C module.
@@ -45,8 +109,26 @@ In order to use USB debug probes within the container, some udev rules need to b
       cd .vscode/setup
       sudo ./install-rules
 
+### WCH-Link Firmware Update
+**Firmware update files** are provided in `/opt/wch/firmware/` and can be programmed using the `wchisp` utility. See the [`wchisp` GitHub repository](https://github.com/ch32-rs/wchisp/) for more information.
 
-### Troubleshooting USB permission errors
+
+See the [WCH-Link User Manual](https://www.wch-ic.com/downloads/WCH-LinkUserManual_PDF.html) about updating your programmer and to determine which firmware file to use.
+
+    wchisp flash /opt/wch/firmware/<isp-specific firmware file>
+
+### OpenOCD Config File
+Configuration files for the OpenOCD debugger are included in `/opt/openocd/bin/`. To start the debugger, run the following command inside the devcontainer terminal:
+
+    openocd -f /opt/openocd/bin/wch-riscv.cfg
+
+### Peripheral Description Files Notes
+Peripheral description files (SVD) for RISC-V MCUs are provided in `/opt/wch/`.
+
+### Serial Monitor
+To access the WCH-Link serial monitor inside the devcontainer, use command: `sudo minicom -s`.
+
+#### Troubleshooting USB permission errors
 If `wlink flash` fails with `failed to open device (errno 13)`, the WCH-Link is usually visible but the current host user does not have permission to open it. On distributions that do not provide the `plugdev` group by default, create the group and add the current user to it:
 
 ```sh
@@ -82,34 +164,7 @@ wlink flash build/CH585D.elf
 
 The container already enables privileged access and mounts `/dev/bus/usb/` in `devcontainer.json`; no additional Docker arguments are normally required.
 
-
-### WCH-Link Firmware Update
-**Firmware update files** are provided in `/opt/wch/firmware/` and can be programmed using the `wchisp` utility. See the [`wchisp` GitHub repository](https://github.com/ch32-rs/wchisp/) for more information.
-
-
-See the [WCH-Link User Manual](https://www.wch-ic.com/downloads/WCH-LinkUserManual_PDF.html) about updating your programmer and to determine which firmware file to use.
-
-    wchisp flash /opt/wch/firmware/<isp-specific firmware file>
-
-### OpenOCD Config File
-Configuration files for the OpenOCD debugger are included in `/opt/openocd/bin/`. To start the debugger, run the following command inside the devcontainer terminal:
-
-    openocd -f /opt/openocd/bin/wch-riscv.cfg
-
-### Peripheral Description Files Notes
-Peripheral description files (SVD) for RISC-V MCUs are provided in `/opt/wch/`.
-
-### Serial Monitor
-To access the WCH-Link serial monitor inside the devcontainer, use the `picocom` command as shown below:
-
-    picocom -b <baudrate> <tty port device>
-
-e.g. "`picocom -b 500000 /dev/ttyUSB0`".
-
-To close the connection, press RETURN/ESC/Ctrl-C, type "`~.`" (tilde, dot) and wait for 3 seconds.
-
 ### Flashing a target with pre-built image
-
 To flash a target with a pre-built firmware image, use the included `wlink` utility. See the [`wlink`GitHub repository](https://github.com/ch32-rs/wlink/) for more information.
 
     wlink flash <hexfile>
