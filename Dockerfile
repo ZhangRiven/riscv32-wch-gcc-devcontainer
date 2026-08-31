@@ -40,7 +40,7 @@ RUN wget https://www.python.org/ftp/python/3.8.20/Python-3.8.20.tgz && \
     cd Python-3.8.20 && \
     ./configure --enable-shared --prefix=/opt/python3.8 && \
     make -j $(nproc) && \
-    cp lib/libpython3.8.so.1.0 /usr/local/lib/
+    cp libpython3.8.so.1.0 /usr/local/lib/
 
 
 # yazi
