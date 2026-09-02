@@ -22,20 +22,35 @@ RUN apt-get update && \
     udev \
     unzip \
     usbutils \
-    clangd \
-    gdb-multiarch
+    clangd
 
 # Setup dir for packages installation
 WORKDIR /tmp
 
-# yazi
-RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null
-RUN echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' | sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null
+# ninja
+RUN wget https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip && \
+    unzip ninja-linux.zip && \
+    mv ninja /usr/local/bin/ && \
+    chmod +x /usr/local/bin/ninja
 
-RUN apt-get update && \
+
+# libpython3.8.so.1.0
+RUN wget https://www.python.org/ftp/python/3.8.20/Python-3.8.20.tgz && \
+    tar -xzf Python-3.8.20.tgz && \
+    cd Python-3.8.20 && \
+    ./configure --enable-shared --prefix=/opt/python3.8 && \
+    make -j $(nproc) && \
+    cp libpython3.8.so.1.0 /usr/local/lib/
+
+
+# yazi
+RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | \
+    sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null && \
+    echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' | sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    yazi \
-    && rm -rf /var/lib/apt/lists/*
+    yazi && \
+    rm -rf /var/lib/apt/lists/*
 
 
 #- CMake -----------------------------------------------------------------------

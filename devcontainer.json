@@ -55,16 +55,24 @@
         ],
         "VsCodeTaskButtons.tasks": [
           {
-            "label": "$(play) Flash Target",
-            "task": "Flash Target",
-            "tooltip": "Flash the ordered MCU"
+            "label": "$(play) Build",
+            "task": "Build",
+            "tooltip": "Build project"
+          },
+          {
+            "label": "$(play) Flash",
+            "task": "Flash",
+            "tooltip": "Flash firmware"
           }
         ]
       },
       "extensions": [
+        "ms-vscode.cpptools",
         "llvm-vs-code-extensions.vscode-clangd",
-        "marus25.cortex-debug",
         "ms-vscode.cmake-tools",
+        "mcu-debug.peripheral-viewer",
+        "mcu-debug.memory-view",
+        "mcu-debug.rtos-views",
         "keroc.hex-fmt",
         "trond-snekvik.gnu-mapfiles",
         "zhwu95.riscv",
