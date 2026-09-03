@@ -22,7 +22,9 @@ RUN apt-get update && \
     udev \
     unzip \
     usbutils \
-    clangd
+    clangd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 # Setup dir for packages installation
 WORKDIR /tmp
@@ -31,7 +33,8 @@ WORKDIR /tmp
 RUN wget https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip && \
     unzip ninja-linux.zip && \
     mv ninja /usr/local/bin/ && \
-    chmod +x /usr/local/bin/ninja
+    chmod +x /usr/local/bin/ninja && \
+    rm -f ninja-linux.zip
 
 
 # libpython3.8.so.1.0
@@ -40,7 +43,8 @@ RUN wget https://www.python.org/ftp/python/3.8.20/Python-3.8.20.tgz && \
     cd Python-3.8.20 && \
     ./configure --enable-shared --prefix=/opt/python3.8 && \
     make -j $(nproc) && \
-    cp libpython3.8.so.1.0 /usr/local/lib/
+    cp libpython3.8.so.1.0 /usr/local/lib/ && \
+    rm -rf /tmp/Python-3.8.20 /tmp/Python-3.8.20.tgz
 
 
 # yazi
@@ -50,7 +54,8 @@ RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     yazi && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 
 #- CMake -----------------------------------------------------------------------
@@ -84,9 +89,8 @@ ARG MOUNRIVER_FIRMWARE_INSTALL_DIR="/opt/wch/firmware"
 ARG MOUNRIVER_SVD_INSTALL_DIR="/opt/wch/svd"
 
 # Download and install package
-RUN curl -sLO ${MOUNRIVER_URL}
-# COPY MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz /tmp
-RUN mkdir -p ${MOUNRIVER_RULES_INSTALL_DIR} && \
+RUN curl -sLO ${MOUNRIVER_URL} && \
+    mkdir -p ${MOUNRIVER_RULES_INSTALL_DIR} && \
     mkdir -p ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR} && \
     mkdir -p ${MOUNRIVER_SVD_INSTALL_DIR} && \
     echo "${MOUNRIVER_MD5} $(basename ${MOUNRIVER_URL})" | md5sum -c - && \
@@ -104,15 +108,11 @@ RUN mkdir -p ${MOUNRIVER_RULES_INSTALL_DIR} && \
 COPY gcc-riscv-none-elf.cmake ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}
 ENV PATH=$PATH:${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin:${MOUNRIVER_OPENOCD_INSTALL_DIR}/bin
 
-# Fix broken openocd file permissions
-RUN chmod +x ${MOUNRIVER_OPENOCD_INSTALL_DIR}/bin/openocd
-
-# Workaround: link to mis-named toolchain binaries
-RUN mkdir -p ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin && \
-    for i in $(ls ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/wch/bin/riscv32-wch-elf-*); do k=$(echo "$(basename $i)" | sed s/wch/none/g | sed s/riscv32-/riscv-/g); ln -s ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/wch/bin/$(basename $i) ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin/$k; done
-
-# Create links to SVD files
-RUN ln -s -t ${MOUNRIVER_SVD_INSTALL_DIR}/../ $(ls ${MOUNRIVER_SVD_INSTALL_DIR}/*.svd)
+# Fix broken openocd file permissions and create toolchain links
+RUN chmod +x ${MOUNRIVER_OPENOCD_INSTALL_DIR}/bin/openocd && \
+    mkdir -p ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin && \
+    for i in $(ls ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/wch/bin/riscv32-wch-elf-*); do k=$(echo "$(basename $i)" | sed s/wch/none/g | sed s/riscv32-/riscv-/g); ln -s ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/wch/bin/$(basename $i) ${MOUNRIVER_TOOLCHAIN_INSTALL_DIR}/bin/$k; done && \
+    ln -s -t ${MOUNRIVER_SVD_INSTALL_DIR}/../ $(ls ${MOUNRIVER_SVD_INSTALL_DIR}/*.svd)
 
 # Display warning for mis-configured toolchains
 ARG MOUNRIVER_LEGACY_TOOLCHAIN_INSTALL_DIR="/opt/gcc-riscv-none-embed"
