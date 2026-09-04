@@ -69,7 +69,31 @@ For CMake projects:
       "version": "2.0.0",
       "tasks": [
         {
-          "label": "Flash Target",
+          "label": "Build",
+          "type": "shell",
+          "command": "cmake",
+          "args": [
+            "--build",
+            "${workspaceFolder}/build",
+            "--config",
+            "Debug",
+            "--target",
+            "all",
+            "-j",
+            "24",
+            "--"
+          ],
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
+          "presentation": {
+            "echo": true,
+            "reveal": "always"
+          }
+        },
+        {
+          "label": "Flash",
           "type": "shell",
           "command": "wlink",
           "args": [
@@ -92,34 +116,47 @@ For CMake projects:
   * launch.json
     ```json
     {
-      // 使用 IntelliSense 了解相关属性。 
-      // 悬停以查看现有属性的描述。
-      // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
       "version": "0.2.0",
       "configurations": [
         {
-          "name": "Debug (gdb-multiarch)",
-          "type": "cortex-debug",
+          "name": "Debug (cppdbg)",
+          "type": "cppdbg",
           "request": "launch",
-          // 指定 RISC-V 调试器路径（务必确认与你系统安装的一致）
-          "gdbPath": "/usr/bin/gdb-multiarch",
-          // 自动获取 CMake 生成的固件路径
-          "executable": "${command:cmake.launchTargetPath}",
-          "servertype": "openocd",
-          // 指定 OpenOCD 的配置文件（WCH-Link）
-          "configFiles": [
-            "/opt/openocd/bin/wch-riscv.cfg"
+          "cwd": "${workspaceFolder}",
+          "program": "${workspaceFolder}/build/CH585D.elf",
+
+          /* OpenOCD debugger */
+          "debugServerPath": "openocd",
+          "debugServerArgs": "-f /opt/openocd/bin/wch-riscv.cfg",
+          "filterStderr": true,
+          "serverStarted": "Info : Listening on port 3333 for gdb connections",
+          
+          /* Debugger connection */
+          "MIMode": "gdb",
+          "miDebuggerPath": "/opt/gcc-riscv-none-elf/bin/riscv-none-elf-gdb",
+          "miDebuggerServerAddress": "localhost:3333",
+          "useExtendedRemote": true,
+
+          /* Debugger and target setup */
+          "stopAtEntry": false,
+          "setupCommands": [
+            { "text": "-enable-pretty-printing" },
+            { "text": "set mem inaccessible-by-default off" },
+            { "text": "set architecture riscv:rv32" },
+            { "text": "set remotetimeout unlimited" },
           ],
-          // xxx.svd
-          "svdFile": "/opt/wch/svd/CH585.svd",
-          // 设备名称（用于寄存器视图美化）
-          "device": "CH585",
-          // 可选：连接成功后自动运行到 main 函数
-          "runToEntryPoint": "main",
-          // 可选：让调试器在启动时自动重置并暂停
-          "postResetCommands": [
-            "monitor halt"
-          ]
+          "postRemoteConnectCommands": [
+            { "text": "monitor reset halt" },
+            { "text": "monitor [target current] configure -event gdb-detach { shutdown }" },
+            { "text": "load" },
+            { "text": "monitor reset halt" },
+            { "text": "b main" },
+            { "text": "b HardFault_Handler" },
+          ],
+          "launchCompleteCommand": "exec-continue",
+
+          /* Peripheral viewer */
+          "svdPath": "/opt/wch/svd/CH585.svd"
         }
       ]
     }
