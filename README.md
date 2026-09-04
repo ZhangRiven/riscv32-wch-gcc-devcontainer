@@ -1,5 +1,5 @@
 # wch-riscv-devcontainer
-[![License](https://img.shields.io/github/license/islandcontroller/wch-riscv-devcontainer)](LICENSE) [![GitHub](https://shields.io/badge/github-islandcontroller%2Fwch--riscv--devcontainer-black?logo=github)](https://github.com/islandcontroller/wch-riscv-devcontainer) [![Docker Hub](https://shields.io/badge/docker-islandc%2Fwch--riscv--devcontainer-blue?logo=docker)](https://hub.docker.com/r/islandc/wch-riscv-devcontainer) ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/islandc/wch-riscv-devcontainer?sort=semver)
+[![License](https://img.shields.io/github/license/islandcontroller/wch-riscv-devcontainer)](LICENSE) [![GitHub](https://shields.io/badge/github-islandcontroller%2Fwch--riscv--devcontainer-black?logo=github)](https://github.com/islandcontroller/wch-riscv-devcontainer) [![Docker Hub](https://shields.io/badge/docker-islandc%2Fwch--riscv--devcontainer-blue?logo=docker)](https://hub.docker.com/r/islandc/wch-riscv-devcontainer) ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/islandc/wch-riscv-devcontainer?sort=semver) [![GitHub](https://shields.io/badge/github-ZhangRiven%2Friscv32--wch--gcc--devcontainer-black?logo=github)](https://github.com/ZhangRiven/riscv32-wch-gcc-devcontainer)
 
 *WCH-IC RISC-V development and debugging environment inside a VSCode devcontainer.*
 
@@ -13,15 +13,43 @@
   * SVD files
 * [CH32X035 PIOC Assembler](https://github.com/openwch/ch32x035/tree/main/EVT/EXAM/PIOC/Tool_Manual/Tool) Version 3.1
 * [CMake](https://cmake.org/download) Version 4.4.2
+* [Ninja](https://ninja-build.org/) (latest)
 * [ch32-rs/wchisp](https://github.com/ch32-rs/wchisp/) Version 0.3.0
 * [ch32-rs/wlink](https://github.com/ch32-rs/wlink/) Version 0.1.2
+* [Yazi](https://yazi-rs.github.io/) terminal file manager (latest)
+* [clangd](https://clangd.llvm.org/) for C/C++ IntelliSense
+* Python 3.8 shared library (`libpython3.8.so.1.0`)
 
 ## System Requirements
 * VSCode [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
+* [Podman](https://podman.io/) or Docker container runtime
 * (WSL only) [usbipd-win](https://learn.microsoft.com/en-us/windows/wsl/connect-usb)
+
+## Importing the Pre-built Container Image
+
+Container images are built automatically via GitHub Actions. Follow these steps to import the image:
+
+1. **Download the image artifact** from the latest successful CI run:
+   * Go to the repository [Actions](https://github.com/ZhangRiven/wch-riscv-devcontainer/actions) page
+   * Select the latest `Docker Image CI` workflow run
+   * Download the `docker-image` artifact (a `.tar` file inside a zip archive)
+
+2. **Load the image into Podman** (or Docker):
+   ```sh
+   # Extract the downloaded zip first, then load the tar file
+   podman load -i docker-image/image.tar
+   ```
+
+3. **Tag the image** (so devcontainer.json can find it):
+   ```sh
+   # The imported image is tagged as local/riscv32-wch-gcc-devcontainer:<tag>
+   # Retag it to match the devcontainer.json configuration
+   podman tag local/riscv32-wch-gcc-devcontainer:master riven/riscv32-wch-gcc-devcontainer:latest
+   ```
 
 ## Usage
 * Include this repo as `.devcontainer` in the root of your project
+* Make sure the container image has been imported (see [Importing the Pre-built Container Image](#importing-the-pre-built-container-image) above)
 * Connect debug probe 
   * (WSL only) attach to WSL using `usbipd attach --wsl --busid <...>`. **This needs to be completed before starting the Dev Container.**
 * Select `Dev Containers: Reopen in Container`
@@ -181,26 +209,45 @@ In order to run the assembler, a 32-bit WINE installation inside the container i
 
       xxd -i <binary file name> <C source file name>
 
-## Building
+## Automated Build via GitHub Actions
+
+Container images are built automatically using GitHub Actions workflows:
+
+### Docker Image CI (`docker-image.yml`)
+Triggered on every push or pull request to the `master` branch, or manually via `workflow_dispatch`.
+
+* Builds the Docker image and exports it as a runnable tar artifact
+* Uploads the `docker-image` artifact (retention: 7 days)
+* Uses GitHub Actions cache for faster builds
+
+## Building Locally
+
+If you need to build the image locally instead of using the CI artifact:
+
 ```sh
 podman build \
   -t riven/riscv32-wch-gcc-devcontainer:latest \
-  -f .devcontainer/Dockerfile \
-  .devcontainer
+  -f Dockerfile \
+  .
 ```
 
-To build the image yourself, either download the [Linux MounRiver Studio II (MRS2)](http://www.mounriver.com/download) package manually and place it in the build directory, or enable the download in the [dockerfile](Dockerfile#L59-L68):
+Or with Docker:
+
+```sh
+docker build \
+  -t riven/riscv32-wch-gcc-devcontainer:latest \
+  -f Dockerfile \
+  .
+```
+
+The MounRiver Studio II package is downloaded automatically from the [ZhangRiven/MRS_Linux](https://github.com/ZhangRiven/MRS_Linux/releases) GitHub Releases mirror during build. If you want to use a local copy instead, modify the `MOUNRIVER_URL` ARG in the [Dockerfile](Dockerfile#L81-L83):
 
 ```dockerfile
-ARG MOUNRIVER_URL="http://file-oss.mounriver.com/upgrade/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
-#ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
-...
-
-# Download and install package
-RUN curl -sLO ${MOUNRIVER_URL}
-#COPY MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz /tmp
-...
+ARG MOUNRIVER_URL="https://github.com/ZhangRiven/MRS_Linux/releases/download/v${MOUNRIVER_VERSION}/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
+# ARG MOUNRIVER_URL="/tmp/MounRiverStudio_Linux_X64_V${MOUNRIVER_VERSION}.tar.xz"
 ```
+
+Then uncomment the `COPY` line and comment out the `curl` line around line [Dockerfile](Dockerfile#L92-L99).
 
 ## Licensing
 
