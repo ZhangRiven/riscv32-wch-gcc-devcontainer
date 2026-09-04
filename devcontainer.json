@@ -10,7 +10,8 @@
   "privileged": true,
   // Mount USB devices (debug probes, UART interfaces, ...)
   "mounts": [
-    "source=/dev/bus/usb/,target=/dev/bus/usb/,type=bind"
+    "source=/dev/bus/usb/,target=/dev/bus/usb/,type=bind",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/root/.ssh,type=bind,readonly"
   ],
   "remoteUser": "root",
   // Pre-configure settings and extensions
@@ -67,6 +68,7 @@
         ]
       },
       "extensions": [
+        "mhutchie.git-graph",
         "ms-vscode.cpptools",
         "llvm-vs-code-extensions.vscode-clangd",
         "ms-vscode.cmake-tools",
