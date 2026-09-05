@@ -10,12 +10,14 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 USER root
 
 # Dependencies setup
-RUN apt-get update && \
+RUN add-apt-repository ppa:deadsnakes/ppa -y \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     vim \
     minicom \
     curl \
     make \
+    python3.8 \
     python3-pygments \
     software-properties-common \
     tar \
@@ -36,17 +38,6 @@ RUN wget https://github.com/ninja-build/ninja/releases/latest/download/ninja-lin
     chmod +x /usr/local/bin/ninja && \
     rm -f ninja-linux.zip
 
-
-# libpython3.8.so.1.0
-RUN wget https://www.python.org/ftp/python/3.8.20/Python-3.8.20.tgz && \
-    tar -xzf Python-3.8.20.tgz && \
-    cd Python-3.8.20 && \
-    ./configure --enable-shared --prefix=/opt/python3.8 && \
-    make -j $(nproc) && \
-    cp libpython3.8.so.1.0 /usr/local/lib/ && \
-    rm -rf /tmp/Python-3.8.20 /tmp/Python-3.8.20.tgz
-
-
 # yazi
 RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | \
     sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null && \
@@ -56,7 +47,6 @@ RUN curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | \
     yazi && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
 
 #- CMake -----------------------------------------------------------------------
 ARG CMAKE_VERSION=4.4.2
