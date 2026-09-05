@@ -11,21 +11,21 @@ USER root
 
 # Dependencies setup
 RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common && \
     add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    vim \
-    minicom \
-    curl \
-    make \
-    python3.8 \
-    python3-pygments \
-    software-properties-common \
-    tar \
-    udev \
-    unzip \
-    usbutils \
-    clangd && \
+        vim \
+        minicom \
+        curl \
+        make \
+        python3.8 \
+        python3-pygments \
+        tar \
+        udev \
+        unzip \
+        usbutils \
+        clangd && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
