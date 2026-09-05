@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 USER root
 
 # Dependencies setup
-RUN add-apt-repository ppa:deadsnakes/ppa -y \
+RUN add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     vim \
