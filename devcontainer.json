@@ -64,6 +64,11 @@
             "label": "$(play) Flash",
             "task": "Flash",
             "tooltip": "Flash firmware"
+          },
+          {
+            "label": "$(play) Reset",
+            "task": "Reset",
+            "tooltip": "Reset device"
           }
         ]
       },

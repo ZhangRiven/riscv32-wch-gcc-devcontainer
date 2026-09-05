@@ -27,6 +27,7 @@ RUN apt-get update && \
         unzip \
         usbutils \
         clangd && \
+        cmake-format && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
