@@ -32,19 +32,19 @@ Container images are built automatically via GitHub Actions. Follow these steps 
 1. **Download the image artifact** from the latest successful CI run:
    * Go to the repository [Actions](https://github.com/ZhangRiven/wch-riscv-devcontainer/actions) page
    * Select the latest `Docker Image CI` workflow run
-   * Download the `docker-image` artifact (a `.tar` file inside a zip archive)
+   * Download the `docker-image.zip` artifact (a `.tar` file inside a zip archive)
 
 2. **Load the image into Podman** (or Docker):
    ```sh
    # Extract the downloaded zip first, then load the tar file
-   podman load -i docker-image/image.tar
+   unzip docker-image.zip
+   podman load -i image.tar
    ```
 
-3. **Tag the image** (so devcontainer.json can find it):
+3. **Clear files, after rebuild devcontainer in VSCode** :
    ```sh
-   # The imported image is tagged as local/riscv32-wch-gcc-devcontainer:<tag>
-   # Retag it to match the devcontainer.json configuration
-   podman tag local/riscv32-wch-gcc-devcontainer:master riven/riscv32-wch-gcc-devcontainer:latest
+   rm -rf docker-image.zip image.tar
+   podman system prune -a --volumes -f
    ```
 
 ## Usage

@@ -5,7 +5,7 @@
     "dockerfile": "Dockerfile"
   },*/
   // Pull and use pre-built image from Docker Hub
-  "image": "riven/riscv32-wch-gcc-devcontainer:latest",
+  "image": "local/riscv32-wch-gcc-devcontainer:master",
   // Privileged container in order to access /dev
   "privileged": true,
   // Mount USB devices (debug probes, UART interfaces, ...)
