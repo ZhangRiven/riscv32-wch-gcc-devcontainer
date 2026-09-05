@@ -20,6 +20,7 @@ RUN apt-get update && \
         curl \
         make \
         python3.8 \
+        libpython3.8 \
         python3-pygments \
         tar \
         udev \
